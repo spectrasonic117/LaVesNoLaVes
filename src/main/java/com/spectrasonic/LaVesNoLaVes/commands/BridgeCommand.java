@@ -6,7 +6,6 @@ import com.spectrasonic.LaVesNoLaVes.Main;
 import com.spectrasonic.LaVesNoLaVes.game.BridgeGame;
 import com.spectrasonic.Utils.MessageUtils;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 @CommandAlias("bridge")
 public class BridgeCommand extends BaseCommand {

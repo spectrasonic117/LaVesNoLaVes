@@ -2,7 +2,6 @@ package com.spectrasonic.LaVesNoLaVes.tasks;
 
 import com.spectrasonic.LaVesNoLaVes.Main;
 import com.spectrasonic.LaVesNoLaVes.game.BridgeGame;
-import com.spectrasonic.Utils.MessageUtils;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
