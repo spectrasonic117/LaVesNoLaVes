@@ -1,0 +1,16 @@
+paste_pivot:
+    x: 58
+    y: -9
+    z: -7288
+
+respawn_point:
+    x: 59.5
+    y: -9
+    z: -7328.5
+
+schematic_names:
+    - invisible_bridge
+    - bridge_1
+    - bridge_2
+    - bridge_3
+    - visible_bridge

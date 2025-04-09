@@ -12,8 +12,9 @@ import java.time.Duration;
 
 public final class MessageUtils {
 
+    private static final JavaPlugin plugin = JavaPlugin.getProvidingPlugin(MessageUtils.class);
     public static final String DIVIDER = "<gray>----------------------------------------</gray>";
-    public static final String PREFIX = "<gray>[<gold>test-new</gold>]</gray> <gold>»</gold> ";
+    public static final String PREFIX = "<gray>[<gold>"+ plugin.getPluginMeta().getName()+"</gold>]</gray> <gold>»</gold> ";
 
     private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
@@ -36,9 +37,9 @@ public final class MessageUtils {
     public static void sendStartupMessage(JavaPlugin plugin) {
         String[] messages = {
                 DIVIDER,
-                PREFIX + "<white>" + plugin.getDescription().getName() + "</white> <green>Plugin Enabled!</green>",
-                PREFIX + "<light_purple>Version: </light_purple>" + plugin.getDescription().getVersion(),
-                PREFIX + "<white>Developed by: </white><red>" + plugin.getDescription().getAuthors() + "</red>",
+                PREFIX + "<white>" + plugin.getPluginMeta().getName() + "</white> <green>Plugin Enabled!</green>",
+                PREFIX + "<light_purple>Version: </light_purple>" + plugin.getPluginMeta().getVersion(),
+                PREFIX + "<white>Developed by: </white><red>" + plugin.getPluginMeta().getAuthors() + "</red>",
                 DIVIDER
         };
 
@@ -79,7 +80,7 @@ public final class MessageUtils {
     public static void sendShutdownMessage(JavaPlugin plugin) {
         String[] messages = {
                 DIVIDER,
-                PREFIX + "<red>" + plugin.getDescription().getName() + " plugin Disabled!</red>",
+                PREFIX + "<red>" + plugin.getPluginMeta().getName() + " plugin Disabled!</red>",
                 DIVIDER
         };
 

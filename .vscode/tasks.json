@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "gradle",
+            "id": "/Users/spectra/Desktop/LaVesNoLaVesbuildLaVesNoLaVes",
+            "script": "build",
+            "description": "Assembles and tests this project.",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "project": "LaVesNoLaVes",
+            "buildFile": "/Users/spectra/Desktop/LaVesNoLaVes/build.gradle",
+            "rootProject": "LaVesNoLaVes",
+            "projectFolder": "/Users/spectra/Desktop/LaVesNoLaVes",
+            "workspaceFolder": "/Users/spectra/Desktop/LaVesNoLaVes",
+            "args": "",
+            "javaDebug": false,
+            "problemMatcher": [
+                "$gradle"
+            ],
+            "label": "gradle: build"
+        }
+    ]
+}
