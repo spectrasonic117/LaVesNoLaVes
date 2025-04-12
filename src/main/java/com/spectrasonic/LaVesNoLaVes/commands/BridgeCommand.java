@@ -12,10 +12,16 @@ public class BridgeCommand extends BaseCommand {
 
     private final Main plugin;
     private final BridgeGame bridgeGame;
+    private int particleCount;
 
     public BridgeCommand(Main plugin, BridgeGame bridgeGame) {
         this.plugin = plugin;
         this.bridgeGame = bridgeGame;
+        loadConfig();
+    }
+
+    private void loadConfig() {
+        particleCount = plugin.getConfig().getInt("particle_count", 100);
     }
 
     @Subcommand("game")
@@ -53,6 +59,7 @@ public class BridgeCommand extends BaseCommand {
     @Description("Recarga la configuración del plugin")
     public void onReload(CommandSender sender) {
         plugin.reloadPlugin();
+        loadConfig();
         MessageUtils.sendMessage(sender, "<green>Configuración recargada.</green>");
     }
 }

@@ -33,6 +33,7 @@ public class BridgeGame {
     private final PlayerManager playerManager;
     private SchematicSequenceTask sequenceTask;
     private boolean isRunning = false;
+    private final ParticleManager particleManager;
     
     // Configuración
     private BlockVector3 pastePivot;
@@ -42,6 +43,7 @@ public class BridgeGame {
     public BridgeGame(Main plugin, PlayerManager playerManager) {
         this.plugin = plugin;
         this.playerManager = playerManager;
+        this.particleManager = new ParticleManager(plugin, this);
         loadConfig();
     }
     
@@ -180,6 +182,8 @@ public class BridgeGame {
         } catch (IOException e) {
             plugin.getLogger().log(Level.SEVERE, "Error al cargar el schematic: " + schematicName, e);
         }
+
+        particleManager.displayParticles(schematicName);
     }
     
     public boolean isRunning() {
@@ -193,4 +197,8 @@ public class BridgeGame {
     public PlayerManager getPlayerManager() {
         return playerManager;
     }
+
+    public ParticleManager getParticleManager() {
+    return particleManager;
+}
 }

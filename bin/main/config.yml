@@ -14,3 +14,43 @@ schematic_names:
     - bridge_2
     - bridge_3
     - visible_bridge
+
+particle_points:
+    punto1:
+        x: 74
+        y: -9
+        z: -7334
+    punto2:
+        x: 71
+        y: -9
+        z: -7301
+    punto3:
+        x: 91
+        y: -9
+        z: -7301
+    punto4:
+        x: 94
+        y: -9
+        z: -7334
+    punto5:
+        x: 94
+        y: -9
+        z: -7359
+    punto6:
+        x: 113
+        y: -9
+        z: -7352
+    punto7:
+        x: 104
+        y: -9
+        z: -7321
+    punto8:
+        x: 112
+        y: -9
+        z: -7303
+    punto9:
+        x: 119
+        y: -9
+        z: -7329
+
+particle_count: 500
