@@ -98,7 +98,7 @@ public class BridgeGame {
         
         // Iniciar la secuencia de schematics
         sequenceTask = new SchematicSequenceTask(plugin, this, schematicNames);
-        sequenceTask.runTaskTimer(plugin, 0L, 60L); // 3 segundos (60 ticks)
+        sequenceTask.runTaskTimer(plugin, 0L, 30L); // 3 segundos (60 ticks)
         
         // Anunciar inicio del juego
         MessageUtils.broadcastTitle(
