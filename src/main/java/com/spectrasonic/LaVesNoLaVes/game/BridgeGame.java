@@ -83,8 +83,10 @@ public class BridgeGame {
             schematicNames.add("bridge_2");
             schematicNames.add("bridge_3");
             schematicNames.add("visible_bridge");
+            schematicNames.add("bridge_4");
+            schematicNames.add("bridge_5");
 
-            plugin.getLogger().warning("No se encontraron nombres de schematics en la configuración. Usando valores por defecto.");
+            plugin.getLogger().warning("…No se encontraron nombres de schematics en la configuración. Usando valores por defecto.");
         }
     }
     
