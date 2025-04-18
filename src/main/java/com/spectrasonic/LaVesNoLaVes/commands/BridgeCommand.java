@@ -5,9 +5,14 @@ import co.aikar.commands.annotation.*;
 import com.spectrasonic.LaVesNoLaVes.Main;
 import com.spectrasonic.LaVesNoLaVes.game.BridgeGame;
 import com.spectrasonic.Utils.MessageUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
-@CommandAlias("bridge")
+@CommandAlias("bridge|br")
 public class BridgeCommand extends BaseCommand {
 
     private final Main plugin;
@@ -39,6 +44,8 @@ public class BridgeCommand extends BaseCommand {
             
             bridgeGame.startGame();
             MessageUtils.sendMessage(sender, "<green>¡Minijuego Comenzado!</green>");
+
+            applyBlindnessEffect();
         }
 
         @Subcommand("stop")
@@ -51,6 +58,8 @@ public class BridgeCommand extends BaseCommand {
             
             bridgeGame.stopGame();
             MessageUtils.sendMessage(sender, "<red>Minijuego Detenido.</red>");
+
+            removeBlindnessEffect();
         }
     }
 
@@ -61,5 +70,19 @@ public class BridgeCommand extends BaseCommand {
         plugin.reloadPlugin();
         loadConfig();
         MessageUtils.sendMessage(sender, "<green>Configuración recargada.</green>");
+    }
+
+    private void applyBlindnessEffect() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getGameMode() == GameMode.ADVENTURE) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 3, false, false));
+            }
+        }
+    }
+
+    private void removeBlindnessEffect() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.removePotionEffect(PotionEffectType.BLINDNESS);
+        }
     }
 }

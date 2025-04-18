@@ -14,6 +14,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.spectrasonic.LaVesNoLaVes.Main;
 import com.spectrasonic.LaVesNoLaVes.tasks.SchematicSequenceTask;
+import com.spectrasonic.LaVesNoLaVes.tasks.CustomSchematicSequenceTask;
 import com.spectrasonic.Utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -83,6 +84,8 @@ public class BridgeGame {
             schematicNames.add("bridge_2");
             schematicNames.add("bridge_3");
             schematicNames.add("visible_bridge");
+            schematicNames.add("bridge_4");
+            schematicNames.add("bridge_5");
 
             plugin.getLogger().warning("No se encontraron nombres de schematics en la configuración. Usando valores por defecto.");
         }
@@ -92,18 +95,20 @@ public class BridgeGame {
         if (isRunning) {
             return;
         }
-        
         isRunning = true;
         playerManager.resetScoredPlayers();
-        
-        // Iniciar la secuencia de schematics
-        sequenceTask = new SchematicSequenceTask(plugin, this, schematicNames);
-        sequenceTask.runTaskTimer(plugin, 0L, 60L); // 3 segundos (60 ticks)
-        
+
+        // Inicia el scheduler personalizado
+        CustomSchematicSequenceTask.start(
+            plugin,
+            this,
+            schematicNames
+        );
+
         // Anunciar inicio del juego
         MessageUtils.broadcastTitle(
-            "<gold><b>¡Cruza el Puente!</b></gold>", 
-            "", 
+            "<gold><b>¡Cruza el Puente!</b></gold>",
+            "",
             1, 3, 1
         );
     }

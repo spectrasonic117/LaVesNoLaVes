@@ -14,6 +14,8 @@ schematic_names:
     - bridge_2
     - bridge_3
     - visible_bridge
+    - bridge_4
+    - bridge_5
 
 particle_points:
     punto1:

@@ -84,6 +84,22 @@ public class ParticleManager {
         bridge3.put(9, 15);
         schemes.put("bridge_3", bridge3);
 
+        Map<Integer, Integer> bridge4 = new HashMap<>();
+        bridge4.put(1, 10);
+        bridge4.put(2, 5);
+        bridge4.put(4, 10);
+        bridge4.put(5, 5);
+        bridge4.put(7, 5);
+        bridge4.put(8, 5);
+        bridge4.put(9, 10);
+        schemes.put("bridge_4", bridge4);
+
+        Map<Integer, Integer> bridge5 = new HashMap<>();
+        bridge5.put(1, 5);
+        bridge5.put(4, 5);
+        bridge5.put(9, 5);
+        schemes.put("bridge_5", bridge5);
+
         for (Map.Entry<String, Map<Integer, Integer>> entry : schemes.entrySet()) {
             List<ParticlePoint> points = new ArrayList<>();
             for (Map.Entry<Integer, Integer> point : entry.getValue().entrySet()) {
