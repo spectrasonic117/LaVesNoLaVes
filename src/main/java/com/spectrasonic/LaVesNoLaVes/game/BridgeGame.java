@@ -127,7 +127,7 @@ public class BridgeGame {
 
         if (visibleBridgeExists) {
              pasteSchematic("visible_bridge");
-            MessageUtils.sendMessage(sender, "<green>Puente 'visible_bridge' pegado al detener el juego.</green>");
+            MessageUtils.sendMessage(sender, "<yellow>Puente 'visible_bridge' pegado al detener el juego.");
         } else {
             MessageUtils.sendMessage(sender, "<yellow>El schematic 'visible_bridge' no se encontró. No se pudo restaurar el puente visible al detener.</yellow>");
         }
