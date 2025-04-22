@@ -5,6 +5,7 @@ import com.spectrasonic.LaVesNoLaVes.game.BridgeGame;
 import com.spectrasonic.LaVesNoLaVes.game.PlayerManager;
 import com.spectrasonic.LaVesNoLaVes.listeners.PlayerMovementListener;
 import com.spectrasonic.Utils.MessageUtils;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -31,7 +32,7 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
         // Detener el juego si está en curso
         if (bridgeGame.isRunning()) {
-            bridgeGame.stopGame();
+            bridgeGame.stopGame(null); // Pasamos null ya que no hay un CommandSender claro
         }
         
         MessageUtils.sendShutdownMessage(this);
@@ -52,11 +53,12 @@ public final class Main extends JavaPlugin {
         return bridgeGame;
     }
     
-    public void reloadPlugin() {
+    public void reloadPlugin(CommandSender sender) {
         reloadConfig();
         if (bridgeGame.isRunning()) {
-            bridgeGame.stopGame();
+            bridgeGame.stopGame(sender);
         }
         bridgeGame.loadConfig();
+        MessageUtils.sendMessage(sender, "<green>Configuración recargada.</green>");
     }
 }

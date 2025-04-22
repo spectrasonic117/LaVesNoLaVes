@@ -13,30 +13,27 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.spectrasonic.LaVesNoLaVes.Main;
-import com.spectrasonic.LaVesNoLaVes.tasks.SchematicSequenceTask;
 import com.spectrasonic.LaVesNoLaVes.tasks.CustomSchematicSequenceTask;
 import com.spectrasonic.Utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 public class BridgeGame {
 
     private final Main plugin;
     private final PlayerManager playerManager;
-    private SchematicSequenceTask sequenceTask;
     private boolean isRunning = false;
     private final ParticleManager particleManager;
     
-    // Configuración
     private BlockVector3 pastePivot;
     private Location respawnPoint;
     private List<String> schematicNames;
@@ -49,7 +46,6 @@ public class BridgeGame {
     }
     
     public void loadConfig() {
-        // Cargar punto de pivote para pegar schematics
         ConfigurationSection pivotSection = plugin.getConfig().getConfigurationSection("paste_pivot");
         if (pivotSection != null) {
             int x = pivotSection.getInt("x");
@@ -58,113 +54,124 @@ public class BridgeGame {
             pastePivot = BlockVector3.at(x, y, z);
         } else {
             pastePivot = BlockVector3.at(0, 0, 0);
-            plugin.getLogger().warning("No se encontró el punto de pivote en la configuración. Usando (0,0,0).");
+            MessageUtils.sendConsoleMessage("<yellow>No se encontró la sección 'paste_pivot' en config.yml. Usando (0,0,0).</yellow>");
         }
         
-        // Cargar punto de respawn
         ConfigurationSection respawnSection = plugin.getConfig().getConfigurationSection("respawn_point");
-        if (respawnSection != null) {
+        World defaultWorld = Bukkit.getWorlds().get(0);
+        if (respawnSection != null && defaultWorld != null) {
             double x = respawnSection.getDouble("x");
             double y = respawnSection.getDouble("y");
             double z = respawnSection.getDouble("z");
-            World world = Bukkit.getWorlds().get(0); // Usar el mundo principal
-            respawnPoint = new Location(world, x, y, z);
+            respawnPoint = new Location(defaultWorld, x, y, z);
         } else {
-            World world = Bukkit.getWorlds().get(0);
-            respawnPoint = world.getSpawnLocation();
-            plugin.getLogger().warning("No se encontró el punto de respawn en la configuración. Usando el spawn del mundo.");
+            if (defaultWorld != null) {
+                 respawnPoint = defaultWorld.getSpawnLocation();
+                MessageUtils.sendConsoleMessage("<yellow>No se encontró la sección 'respawn_point' en config.yml. Usando el spawn del mundo principal.</yellow>");
+            } else {
+                 respawnPoint = new Location(null, 0, 100, 0);
+                MessageUtils.sendConsoleMessage("<red>No se encontró el mundo por defecto. El punto de respawn no se pudo establecer correctamente.</red>");
+            }
         }
-        
-        // Cargar nombres de schematics
-        schematicNames = plugin.getConfig().getStringList("schematic_names");
-        if (schematicNames.isEmpty()) {
-            schematicNames = new ArrayList<>();
-            schematicNames.add("invisible_bridge");
-            schematicNames.add("bridge_1");
-            schematicNames.add("bridge_2");
-            schematicNames.add("bridge_3");
-            schematicNames.add("visible_bridge");
-            schematicNames.add("bridge_4");
-            schematicNames.add("bridge_5");
 
-            plugin.getLogger().warning("No se encontraron nombres de schematics en la configuración. Usando valores por defecto.");
+        schematicNames = plugin.getConfig().getStringList("schematic_names");
+
+        if (schematicNames.isEmpty()) {
+            MessageUtils.sendConsoleMessage("<red>La lista 'schematic_names' en config.yml está vacía o no existe. ¡El juego no funcionará correctamente sin schematics!</red>");
+            schematicNames = Collections.emptyList();
+        } else {
+            MessageUtils.sendConsoleMessage("<green>Cargados " + schematicNames.size() + " nombres de schematics en config.yml.</green>");
         }
     }
-    
-    public void startGame() {
+
+    public void startGame(CommandSender sender) {
         if (isRunning) {
+            MessageUtils.sendMessage(sender, "<yellow>El juego ya está en ejecución.</yellow>");
             return;
         }
+
+        if (schematicNames == null || schematicNames.isEmpty()) {
+            MessageUtils.sendMessage(sender, "<red>No se puede iniciar el juego Bridge: La lista de schematics está vacía. Revisa 'schematic_names' en config.yml.</red>");
+             return;
+        }
+        
         isRunning = true;
         playerManager.resetScoredPlayers();
+        MessageUtils.sendMessage(sender, "<green>Iniciando BridgeGame...</green>");
 
-        // Inicia el scheduler personalizado
         CustomSchematicSequenceTask.start(
             plugin,
             this,
             schematicNames
         );
-
-        // Anunciar inicio del juego
+        
         MessageUtils.broadcastTitle(
             "<gold><b>¡Cruza el Puente!</b></gold>",
             "",
             1, 3, 1
         );
+        MessageUtils.sendMessage(sender, "<green>BridgeGame iniciado correctamente.</green>");
     }
     
-    public void stopGame() {
+    public void stopGame(CommandSender sender) {
         if (!isRunning) {
+            MessageUtils.sendMessage(sender, "<yellow>El juego no está en ejecución.</yellow>");
             return;
         }
-        
+
+        MessageUtils.sendMessage(sender, "<green>Deteniendo BridgeGame...</green>");
         isRunning = false;
         
-        // Detener la tarea de secuencia
-        if (sequenceTask != null) {
-            sequenceTask.cancel();
-            sequenceTask = null;
+        boolean visibleBridgeExists = new File(plugin.getDataFolder().getParentFile(),
+                "FastAsyncWorldEdit/schematics/visible_bridge.schem").exists();
+
+        if (visibleBridgeExists) {
+             pasteSchematic("visible_bridge");
+            MessageUtils.sendMessage(sender, "<green>Puente 'visible_bridge' pegado al detener el juego.</green>");
+        } else {
+            MessageUtils.sendMessage(sender, "<yellow>El schematic 'visible_bridge' no se encontró. No se pudo restaurar el puente visible al detener.</yellow>");
         }
-        
-        // Colocar el puente visible al finalizar
-        pasteSchematic("visible_bridge");
-        
-        // Anunciar fin del juego
-        // MessageUtils.broadcastTitle(
-        //     "<red><b>Juego Terminado</b></red>", 
-        //     "<yellow>El puente se ha detenido</yellow>", 
-        //     1, 3, 1
-        // );
+
+        MessageUtils.sendMessage(sender, "<green>BridgeGame detenido.</green>");
     }
-    
+
     public void pasteSchematic(String schematicName) {
-        // Obtener el archivo del schematic
-        File schematicFile = new File(plugin.getDataFolder().getParentFile(), 
-                "FastAsyncWorldEdit/schematics/" + schematicName + ".schem");
-        
-        if (!schematicFile.exists()) {
-            plugin.getLogger().log(Level.SEVERE, "No se pudo encontrar el schematic: " + schematicName);
+        File schematicFolder = new File(plugin.getDataFolder().getParentFile(), "FastAsyncWorldEdit/schematics");
+        if (!schematicFolder.exists()) {
+            MessageUtils.sendConsoleMessage("<red>La carpeta de schematics de FAWE no existe en: " + schematicFolder.getPath() + "</red>");
             return;
         }
-        
-        try {
-            // Cargar el formato del schematic
-            ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
-            if (format == null) {
-                plugin.getLogger().log(Level.SEVERE, "Formato de schematic no soportado: " + schematicName);
-                return;
-            }
+
+        File schematicFile = new File(schematicFolder, schematicName + ".schem");
             
-            // Leer el clipboard
+        if (!schematicFile.exists()) {
+            MessageUtils.sendConsoleMessage("<red>No se pudo encontrar el archivo schematic: " + schematicFile.getPath() + "</red>");
+            return;
+        }
+            
+        ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
+        if (format == null) {
+            MessageUtils.sendConsoleMessage("<red>Formato de schematic no soportado para: " + schematicName + "</red>");
+            return;
+        }
+
+        World world = (respawnPoint != null && respawnPoint.getWorld() != null) ? respawnPoint.getWorld() : Bukkit.getWorlds().get(0);
+        if (world == null) {
+            MessageUtils.sendConsoleMessage("<red>No se pudo obtener un mundo válido para pegar el schematic.</red>");
+            return;
+        }
+
+        if (pastePivot == null) {
+            MessageUtils.sendConsoleMessage("<red>El punto de pegado (pastePivot) es nulo. Verifica la config.</red>");
+            return;
+        }
+
+        try {
             Clipboard clipboard;
             try (ClipboardReader reader = format.getReader(new FileInputStream(schematicFile))) {
                 clipboard = reader.read();
             }
-            
-            // Obtener el mundo
-            World world = Bukkit.getWorlds().get(0);
-            
-            // Pegar el schematic de forma asíncrona
+
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(world))) {
                     Operation operation = new ClipboardHolder(clipboard)
@@ -175,17 +182,16 @@ public class BridgeGame {
                     
                     Operations.complete(operation);
                     
-                    // Actualizar el mundo en el hilo principal
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         FaweAPI.getWorld(world.getName()).commit();
                     });
                 } catch (Exception e) {
-                    plugin.getLogger().log(Level.SEVERE, "Error al pegar el schematic: " + schematicName, e);
+                    MessageUtils.sendConsoleMessage("<red>Error al pegar el schematic: " + schematicName + "</red>");
                 }
             });
             
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error al cargar el schematic: " + schematicName, e);
+            MessageUtils.sendConsoleMessage("<red>Error al cargar el schematic: " + schematicName + "</red>");
         }
 
         particleManager.displayParticles(schematicName);

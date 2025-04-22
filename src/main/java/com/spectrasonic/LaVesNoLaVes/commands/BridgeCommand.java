@@ -37,28 +37,14 @@ public class BridgeCommand extends BaseCommand {
         @Subcommand("start")
         @Description("Inicia el minijuego del puente")
         public void onStart(CommandSender sender) {
-            if (bridgeGame.isRunning()) {
-                MessageUtils.sendMessage(sender, "<red>El juego ya está en ejecución.</red>");
-                return;
-            }
-            
-            bridgeGame.startGame();
-            MessageUtils.sendMessage(sender, "<green>¡Minijuego Comenzado!</green>");
-
+            bridgeGame.startGame(sender);
             applyBlindnessEffect();
         }
 
         @Subcommand("stop")
         @Description("Detiene el minijuego del puente")
         public void onStop(CommandSender sender) {
-            if (!bridgeGame.isRunning()) {
-                MessageUtils.sendMessage(sender, "<red>El juego no está en ejecución.</red>");
-                return;
-            }
-            
-            bridgeGame.stopGame();
-            MessageUtils.sendMessage(sender, "<red>Minijuego Detenido.</red>");
-
+            bridgeGame.stopGame(sender);
             removeBlindnessEffect();
         }
     }
@@ -67,9 +53,7 @@ public class BridgeCommand extends BaseCommand {
     @CommandPermission("bridge.admin")
     @Description("Recarga la configuración del plugin")
     public void onReload(CommandSender sender) {
-        plugin.reloadPlugin();
-        loadConfig();
-        MessageUtils.sendMessage(sender, "<green>Configuración recargada.</green>");
+        plugin.reloadPlugin(sender);
     }
 
     private void applyBlindnessEffect() {
