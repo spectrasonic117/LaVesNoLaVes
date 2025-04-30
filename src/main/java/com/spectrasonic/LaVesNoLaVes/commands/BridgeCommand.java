@@ -42,13 +42,13 @@ public class BridgeCommand extends BaseCommand {
             try {
                 int roundNumber = Integer.parseInt(round);
                 if (roundNumber < 1 || roundNumber > 3) {
-                    sender.sendMessage(MessageUtils.colorize("&cRonda inválida. Debe ser 1, 2 o 3."));
+                    MessageUtils.sendMessage(sender,"&cRonda inválida. Debe ser 1, 2 o 3.");
                     return;
                 }
                 bridgeGame.startGame(sender, roundNumber);
                 applyEffects(roundNumber);
             } catch (NumberFormatException e) {
-                sender.sendMessage(MessageUtils.colorize("&cFormato de ronda inválido. Debe ser 1, 2 o 3."));
+                MessageUtils.sendMessage(sender,"&cFormato de ronda inválido. Debe ser 1, 2 o 3.");
             }
         }
 

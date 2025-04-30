@@ -96,7 +96,7 @@ public class BridgeGame {
 
         currentRound = round;
         isRunning = true;
-        sender.sendMessage(MessageUtils.colorize("&aJuego iniciado en ronda " + round));
+        MessageUtils.sendMessage(sender,"&aJuego iniciado en ronda " + round);
 
         // Apply effects to all players
         applyEffects(round);
