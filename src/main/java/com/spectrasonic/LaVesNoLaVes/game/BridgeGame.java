@@ -20,6 +20,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +36,7 @@ public class BridgeGame {
     private final PlayerManager playerManager;
     private boolean isRunning = false;
     private final ParticleManager particleManager;
+    private int currentRound;
     
     private BlockVector3 pastePivot;
     private Location respawnPoint;
@@ -66,10 +70,10 @@ public class BridgeGame {
             respawnPoint = new Location(defaultWorld, x, y, z);
         } else {
             if (defaultWorld != null) {
-                 respawnPoint = defaultWorld.getSpawnLocation();
+                respawnPoint = defaultWorld.getSpawnLocation();
                 MessageUtils.sendConsoleMessage("<yellow>No se encontró la sección 'respawn_point' en config.yml. Usando el spawn del mundo principal.</yellow>");
             } else {
-                 respawnPoint = new Location(null, 0, 100, 0);
+                respawnPoint = new Location(null, 0, 100, 0);
                 MessageUtils.sendConsoleMessage("<red>No se encontró el mundo por defecto. El punto de respawn no se pudo establecer correctamente.</red>");
             }
         }
@@ -84,18 +88,19 @@ public class BridgeGame {
         }
     }
 
-    public void startGame(CommandSender sender) {
+    public void startGame(CommandSender sender, int round) {
         if (isRunning) {
             MessageUtils.sendMessage(sender, "<yellow>El juego ya está en ejecución.</yellow>");
             return;
         }
 
-        if (schematicNames == null || schematicNames.isEmpty()) {
-            MessageUtils.sendMessage(sender, "<red>No se puede iniciar el juego Bridge: La lista de schematics está vacía. Revisa 'schematic_names' en config.yml.</red>");
-             return;
-        }
-        
+        currentRound = round;
         isRunning = true;
+        sender.sendMessage(MessageUtils.colorize("&aJuego iniciado en ronda " + round));
+
+        // Apply effects to all players
+        applyEffects(round);
+
         playerManager.resetScoredPlayers();
         MessageUtils.sendMessage(sender, "<green>Iniciando BridgeGame...</green>");
 
@@ -126,13 +131,43 @@ public class BridgeGame {
                 "FastAsyncWorldEdit/schematics/visible_bridge.schem").exists();
 
         if (visibleBridgeExists) {
-             pasteSchematic("visible_bridge");
+            pasteSchematic("visible_bridge");
             MessageUtils.sendMessage(sender, "<yellow>Puente 'visible_bridge' pegado al detener el juego.");
         } else {
             MessageUtils.sendMessage(sender, "<yellow>El schematic 'visible_bridge' no se encontró. No se pudo restaurar el puente visible al detener.</yellow>");
         }
 
+        // Remove effects from all players
+        removeEffects();
+
         MessageUtils.sendMessage(sender, "<green>BridgeGame detenido.</green>");
+    }
+
+    private void applyEffects(int round) {
+        String effectType = plugin.getConfig().getString("rounds." + round + ".effect");
+        PotionEffectType effect = PotionEffectType.getByName(effectType);
+        if (effect != null) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player.getGameMode() == org.bukkit.GameMode.ADVENTURE) {
+                    player.addPotionEffect(new PotionEffect(effect, Integer.MAX_VALUE, 0));
+                }
+            }
+        }
+    }
+
+    private void removeEffects() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.removePotionEffect(PotionEffectType.DARKNESS);
+            player.removePotionEffect(PotionEffectType.BLINDNESS);
+        }
+    }
+
+    public int getPointsToGrant() {
+        return plugin.getConfig().getInt("points_grant.round_" + currentRound, 20);
+    }
+
+    public int getPointsToRevoke() {
+        return plugin.getConfig().getInt("points_revoke.round_" + currentRound, 15);
     }
 
     public void pasteSchematic(String schematicName) {

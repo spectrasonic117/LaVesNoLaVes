@@ -35,17 +35,28 @@ public class BridgeCommand extends BaseCommand {
     public class GameCommands extends BaseCommand {
 
         @Subcommand("start")
+        @CommandPermission("bridge.admin")
         @Description("Inicia el minijuego del puente")
-        public void onStart(CommandSender sender) {
-            bridgeGame.startGame(sender);
-            applyBlindnessEffect();
+        @CommandCompletion("1|2|3")
+        public void onStart(CommandSender sender, @Single String round) {
+            try {
+                int roundNumber = Integer.parseInt(round);
+                if (roundNumber < 1 || roundNumber > 3) {
+                    sender.sendMessage(MessageUtils.colorize("&cRonda inválida. Debe ser 1, 2 o 3."));
+                    return;
+                }
+                bridgeGame.startGame(sender, roundNumber);
+                applyEffects(roundNumber);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(MessageUtils.colorize("&cFormato de ronda inválido. Debe ser 1, 2 o 3."));
+            }
         }
 
         @Subcommand("stop")
         @Description("Detiene el minijuego del puente")
         public void onStop(CommandSender sender) {
             bridgeGame.stopGame(sender);
-            removeBlindnessEffect();
+            removeEffects();
         }
     }
 
@@ -56,17 +67,30 @@ public class BridgeCommand extends BaseCommand {
         plugin.reloadPlugin(sender);
     }
 
-    private void applyBlindnessEffect() {
+    private void applyEffects(int round) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getGameMode() == GameMode.ADVENTURE) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 3, false, false));
+                applyEffect(player, round);
             }
         }
     }
 
-    private void removeBlindnessEffect() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.BLINDNESS);
+    private void applyEffect(Player player, int round) {
+        String effectType = plugin.getConfig().getString("rounds." + round + ".effect");
+        PotionEffectType effect = PotionEffectType.getByName(effectType);
+        if (effect != null) {
+            player.addPotionEffect(new PotionEffect(effect, Integer.MAX_VALUE, 0));
         }
+    }
+
+    private void removeEffects() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            removeEffects(player);
+        }
+    }
+
+    private void removeEffects(Player player) {
+        player.removePotionEffect(PotionEffectType.DARKNESS);
+        player.removePotionEffect(PotionEffectType.BLINDNESS);
     }
 }

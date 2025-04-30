@@ -51,9 +51,9 @@ public class PlayerMovementListener implements Listener {
 
         if (blockBelow.getType() == Material.BLACK_STAINED_GLASS) {
             player.teleport(bridgeGame.getRespawnPoint());
-            pointsManager.subtractPoints(player, 1);
+            pointsManager.subtractPoints(player, bridgeGame.getPointsToRevoke());
             TeleportEffectUtils.createDNAHelix(plugin, bridgeGame.getRespawnPoint(), 3.0, 20);
-            MessageUtils.sendMessage(player, "<red><b>¡Has caído! -1 Punto</red>");
+            MessageUtils.sendMessage(player, "<red><b>¡Has caído! -" + bridgeGame.getPointsToRevoke() + " Puntos</red>");
         }
             
         if (blockBelow.getType() == Material.STONE) {
@@ -62,10 +62,10 @@ public class PlayerMovementListener implements Listener {
             }
 
             playerManager.markPlayerAsScored(player);
-            pointsManager.addPoints(player, 10);
+            pointsManager.addPoints(player, bridgeGame.getPointsToGrant());
             MessageUtils.sendTitle(player, 
                 "<green><b>¡Has llegado!</b></green>", 
-                "<yellow><b>+10 Puntos</b></yellow>", 
+                "<yellow><b>+" + bridgeGame.getPointsToGrant() + " Puntos</b></yellow>", 
                 1, 3, 1
             );
             SoundUtils.playerSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
