@@ -145,10 +145,10 @@ public class BridgeGame {
         PotionEffectType effect;
         switch (round) {
             case 1:
-                effect = PotionEffectType.BLINDNESS;
+                effect = PotionEffectType.DARKNESS;
                 break;
             case 2:
-                effect = PotionEffectType.DARKNESS;
+                effect = PotionEffectType.BLINDNESS;
                 break;
             case 3:
                 effect = PotionEffectType.BLINDNESS;
