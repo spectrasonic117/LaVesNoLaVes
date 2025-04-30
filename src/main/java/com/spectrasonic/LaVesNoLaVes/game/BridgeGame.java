@@ -104,11 +104,26 @@ public class BridgeGame {
         playerManager.resetScoredPlayers();
         MessageUtils.sendMessage(sender, "<green>Iniciando BridgeGame...</green>");
 
-        CustomSchematicSequenceTask.start(
-            plugin,
-            this,
-            schematicNames
-        );
+        // Check if schematic names are loaded
+        if (schematicNames == null || schematicNames.isEmpty()) {
+            MessageUtils.sendMessage(sender, "<red>No se encontraron nombres de schematics en la configuración.</red>");
+            isRunning = false;
+            return;
+        }
+
+        // Start schematic sequence
+        try {
+            CustomSchematicSequenceTask.start(
+                plugin,
+                this,
+                schematicNames
+            );
+            MessageUtils.sendMessage(sender, "<green>Secuencia de schematics iniciada.</green>");
+        } catch (Exception e) {
+            MessageUtils.sendMessage(sender, "<red>Error al iniciar la secuencia de schematics: " + e.getMessage() + "</red>");
+            isRunning = false;
+            return;
+        }
         
         MessageUtils.broadcastTitle(
             "<gold><b>¡Cruza el Puente!</b></gold>",
@@ -117,7 +132,33 @@ public class BridgeGame {
         );
         MessageUtils.sendMessage(sender, "<green>BridgeGame iniciado correctamente.</green>");
     }
-    
+
+    private void applyEffects(int round) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getGameMode() == org.bukkit.GameMode.ADVENTURE) {
+                applyEffect(player, round);
+            }
+        }
+    }
+
+    private void applyEffect(Player player, int round) {
+        PotionEffectType effect;
+        switch (round) {
+            case 1:
+                effect = PotionEffectType.BLINDNESS;
+                break;
+            case 2:
+                effect = PotionEffectType.DARKNESS;
+                break;
+            case 3:
+                effect = PotionEffectType.BLINDNESS;
+                break;
+            default:
+                return;
+        }
+        player.addPotionEffect(new PotionEffect(effect, Integer.MAX_VALUE, 0));
+    }
+
     public void stopGame(CommandSender sender) {
         if (!isRunning) {
             MessageUtils.sendMessage(sender, "<yellow>El juego no está en ejecución.</yellow>");
@@ -141,18 +182,6 @@ public class BridgeGame {
         removeEffects();
 
         MessageUtils.sendMessage(sender, "<green>BridgeGame detenido.</green>");
-    }
-
-    private void applyEffects(int round) {
-        String effectType = plugin.getConfig().getString("rounds." + round + ".effect");
-        PotionEffectType effect = PotionEffectType.getByName(effectType);
-        if (effect != null) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player.getGameMode() == org.bukkit.GameMode.ADVENTURE) {
-                    player.addPotionEffect(new PotionEffect(effect, Integer.MAX_VALUE, 0));
-                }
-            }
-        }
     }
 
     private void removeEffects() {

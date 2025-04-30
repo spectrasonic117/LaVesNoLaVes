@@ -43,7 +43,7 @@ public final class Main extends JavaPlugin {
     }
 
     public void registerEvents() {
-        getServer().getPluginManager().registerEvents(
+            getServer().getPluginManager().registerEvents(
             new PlayerMovementListener(this, bridgeGame, playerManager), 
             this
         );

@@ -76,11 +76,21 @@ public class BridgeCommand extends BaseCommand {
     }
 
     private void applyEffect(Player player, int round) {
-        String effectType = plugin.getConfig().getString("rounds." + round + ".effect");
-        PotionEffectType effect = PotionEffectType.getByName(effectType);
-        if (effect != null) {
-            player.addPotionEffect(new PotionEffect(effect, Integer.MAX_VALUE, 0));
+        PotionEffectType effect;
+        switch (round) {
+            case 1:
+                effect = PotionEffectType.BLINDNESS;
+                break;
+            case 2:
+                effect = PotionEffectType.DARKNESS;
+                break;
+            case 3:
+                effect = PotionEffectType.BLINDNESS;
+                break;
+            default:
+                return;
         }
+        player.addPotionEffect(new PotionEffect(effect, Integer.MAX_VALUE, 0));
     }
 
     private void removeEffects() {
